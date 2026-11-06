@@ -45,13 +45,13 @@ export default function AppearancePage() {
           <label className="label">Logo</label>
           {f.logo_url && <img src={f.logo_url} alt="" className="mb-2 h-16 w-16 rounded-full object-cover" />}
           <input type="file" accept="image/*" onChange={(e) => img('logo_url', e.target.files?.[0])} />
-          {f.logo_url && <button className="ml-3 text-sm text-red-300" onClick={() => set('logo_url', null)}>Remover</button>}
+          {f.logo_url && <button className="ml-3 text-sm text-red-600" onClick={() => set('logo_url', null)}>Remover</button>}
         </div>
         <div>
           <label className="label">Capa</label>
           {f.cover_url && <img src={f.cover_url} alt="" className="mb-2 h-20 w-full rounded-xl object-cover" />}
           <input type="file" accept="image/*" onChange={(e) => img('cover_url', e.target.files?.[0])} />
-          {f.cover_url && <button className="ml-3 text-sm text-red-300" onClick={() => set('cover_url', null)}>Remover</button>}
+          {f.cover_url && <button className="ml-3 text-sm text-red-600" onClick={() => set('cover_url', null)}>Remover</button>}
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div><label className="label">Cor principal</label><input type="color" className="h-12 w-full rounded-xl" value={f.primary_color} onChange={(e) => set('primary_color', e.target.value)} /></div>

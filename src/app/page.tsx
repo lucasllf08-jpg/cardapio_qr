@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="dark-ui flex items-center justify-center">
+    <div className="pos-ui flex items-center justify-center">
       <main className="flex max-w-md flex-col items-center gap-6 p-6 text-center">
         <h1 className="text-4xl">Cardápio Digital</h1>
         <p className="text-muted">Cardápio por QR Code e pedidos direto da mesa, sem aplicativo.</p>

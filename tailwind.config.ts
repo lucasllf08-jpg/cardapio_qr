@@ -4,10 +4,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: '#140f10', surface: '#1b1416', raised: '#251b1e', line: '#3a2d31',
-        bone: '#efe7dc', muted: '#a09390', brass: '#c9a15c', wine: '#7a2e3a', sage: '#86a98d',
+        ink: '#f4f5f7', surface: '#ffffff', raised: '#f1f2f4', line: '#e4e6ea',
+        bone: '#16181d', muted: '#6b7280', accent: '#f0280f', side: '#101010',
       },
-      fontFamily: { display: ['var(--font-fraunces)', 'Georgia', 'serif'] },
+      fontFamily: { display: ['var(--font-urbanist)', 'system-ui', 'sans-serif'] },
     },
   },
   plugins: [],

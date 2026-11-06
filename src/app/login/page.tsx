@@ -44,7 +44,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="dark-ui flex items-center justify-center">
+    <div className="pos-ui flex items-center justify-center">
     <main className="w-full max-w-sm space-y-4 p-6">
       <h1 className="text-center text-3xl">{step === 'auth' ? (mode === 'login' ? 'Entrar' : 'Criar conta') : 'Seu estabelecimento'}</h1>
       {step === 'auth' ? (
@@ -70,7 +70,7 @@ export default function LoginPage() {
           <button disabled={busy} className="btn-dark w-full">{busy ? 'Criando…' : 'Criar e continuar'}</button>
         </form>
       )}
-      {msg && <p className="text-center text-sm text-red-300">{msg}</p>}
+      {msg && <p className="text-center text-sm text-red-600">{msg}</p>}
     </main>
     </div>
   );

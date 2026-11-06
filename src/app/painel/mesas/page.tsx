@@ -65,7 +65,7 @@ export default function TablesPage() {
             <div className="no-print mt-2 flex flex-wrap justify-center gap-1 text-sm">
               <button className="btn-light px-2 py-1" onClick={() => toggle(t)}>{t.active ? 'Desativar' : 'Ativar'}</button>
               <button className="btn-light px-2 py-1" onClick={() => renew(t)}>Novo QR</button>
-              <button className="btn-light px-2 py-1 text-red-300" onClick={() => remove(t)}>×</button>
+              <button className="btn-light px-2 py-1 text-red-600" onClick={() => remove(t)}>×</button>
             </div>
           </div>
         ))}

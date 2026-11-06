@@ -58,13 +58,13 @@ export default function CashierPage() {
         {list.map((t) => {
           const wantsBill = bills.includes(t.tables.number);
           return (
-            <div key={t.id} className={`card ${wantsBill ? "!border-brass" : ""}`}>
+            <div key={t.id} className={`card ${wantsBill ? "!border-accent" : ""}`}>
               <button className="flex w-full items-center justify-between text-left" onClick={() => setOpen(open === t.id ? null : t.id)}>
                 <div>
                   <p className="font-display text-3xl font-semibold leading-none">Mesa {t.tables.number}</p>
                   <p className="text-sm text-muted">Aberta às {fmtTime(t.opened_at)}{wantsBill && ' · 🧾 pediu a conta'}</p>
                 </div>
-                <p className="font-display text-3xl font-semibold text-brass">{brl(totalOf(t))}</p>
+                <p className="font-display text-3xl font-semibold text-accent">{brl(totalOf(t))}</p>
               </button>
               {open === t.id && (
                 <div className="mt-3 space-y-2 border-t pt-3">

@@ -4,6 +4,6 @@
   "start_url": "/painel",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#140f10",
+  "theme_color": "#101010",
   "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
 }

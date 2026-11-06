@@ -67,7 +67,7 @@ export default function OrdersPage() {
       <div className="flex flex-wrap items-center gap-2">
         <button className={view === 'active' ? 'btn-dark' : 'btn-light'} onClick={() => setView('active')}>Em andamento</button>
         <button className={view === 'history' ? 'btn-dark' : 'btn-light'} onClick={() => setView('history')}>Histórico</button>
-        <span className={`ml-auto flex items-center gap-2 text-sm ${live ? 'text-sage' : 'text-red-300'}`}>
+        <span className={`ml-auto flex items-center gap-2 text-sm ${live ? 'text-emerald-600' : 'text-red-600'}`}>
           <span className="h-2 w-2 rounded-full bg-current" />{live ? 'Ao vivo' : 'Reconectando…'}
         </span>
         {!soundOn && <button className="btn-amber" onClick={() => { enableSound(); setSoundOn(true); }}>Ativar som dos alertas</button>}
@@ -76,12 +76,12 @@ export default function OrdersPage() {
       {calls.length > 0 && (
         <div className="space-y-2">
           {calls.map((c) => (
-            <div key={c.id} className={`flex items-center justify-between gap-3 rounded-2xl p-4 ${c.type === 'bill' ? 'border border-brass bg-raised' : 'bg-wine'}`}>
+            <div key={c.id} className={`flex items-center justify-between gap-3 rounded-2xl p-4 ${c.type === 'bill' ? 'border-2 border-accent bg-surface' : 'bg-accent text-white'}`}>
               <p className="text-lg font-semibold">
                 Mesa {c.tables.number} {c.type === 'bill' ? 'pediu a conta' : 'está chamando'}
-                <span className="ml-2 text-sm font-normal text-muted">{fmtTime(c.created_at)}</span>
+                <span className="ml-2 text-sm font-normal opacity-70">{fmtTime(c.created_at)}</span>
               </p>
-              <button className="btn-light" onClick={() => doneCall(c.id)}>Atendido</button>
+              <button className={c.type === 'bill' ? 'btn-dark' : 'btn-light'} onClick={() => doneCall(c.id)}>Atendido</button>
             </div>
           ))}
         </div>
@@ -113,15 +113,15 @@ function OrderCard({ o, now, onStatus }: { o: Order; now: number; onStatus: (id:
   const late = o.status === 'new' && mins >= 10;
   const num = String(o.tabs?.tables?.number ?? '?').padStart(2, '0');
   return (
-    <article className={`card p-0 ${o.status === 'new' ? '!border-brass' : ''} ${o.status === 'cancelled' ? 'opacity-60' : ''}`}>
+    <article className={`card p-0 ${o.status === 'new' ? '!border-accent' : ''} ${o.status === 'cancelled' ? 'opacity-60' : ''}`}>
       <header className="flex items-end justify-between gap-3 p-4 pb-3">
         <div>
           <p className="text-sm text-muted">Mesa</p>
-          <p className="font-display text-5xl font-semibold leading-none">{num}</p>
+          <p className="font-display text-5xl font-extrabold leading-none">{num}</p>
         </div>
         <div className="text-right text-sm">
           <p className="font-semibold">{LABEL[o.status]}</p>
-          <p className={late ? 'font-semibold text-red-300' : 'text-muted'}>
+          <p className={late ? 'font-semibold text-red-600' : 'text-muted'}>
             {fmtTime(o.created_at)}{active && ` · ${mins < 1 ? 'agora' : `há ${mins} min`}`}
           </p>
         </div>
@@ -130,13 +130,13 @@ function OrderCard({ o, now, onStatus }: { o: Order; now: number; onStatus: (id:
       <ul className="space-y-2 p-4">
         {o.order_items.map((i) => (
           <li key={i.id} className="text-lg leading-snug">
-            <span className="mr-2 font-semibold text-brass">{i.quantity}x</span>{i.name}
+            <span className="mr-2 font-bold text-accent">{i.quantity}x</span>{i.name}
             {i.addons?.length > 0 && <span className="block pl-8 text-sm text-muted">+ {i.addons.map((a) => a.name).join(', ')}</span>}
             {i.note && <span className="block pl-8 text-sm italic text-muted">“{i.note}”</span>}
           </li>
         ))}
       </ul>
-      {o.note && <p className="mx-4 mb-4 rounded-lg bg-brass/10 p-3 text-sm">Observação: {o.note}</p>}
+      {o.note && <p className="mx-4 mb-4 rounded-lg bg-amber-50 p-3 text-sm">Observação: {o.note}</p>}
       {active && (
         <footer className="flex gap-2 p-4 pt-0">
           {o.status === 'new' && <button className="btn-amber flex-1" onClick={() => onStatus(o.id, 'preparing')}>Iniciar preparo</button>}
