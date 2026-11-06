@@ -4,14 +4,14 @@ Cardápio digital por QR Code com pedidos por mesa, comanda paga no caixa e pain
 
 ## Como rodar
 1. `npm install`
-2. Crie um projeto no Supabase e execute `supabase/migrations/0001_init.sql` no SQL Editor.
+2. Crie um projeto no Supabase e execute, nesta ordem, `supabase/migrations/0001_init.sql` e `0002_profile.sql` no SQL Editor.
 3. Copie `.env.example` para `.env.local` e preencha URL e chave anon.
 4. `npm run dev` e abra http://localhost:3000
 5. Em `/login`, crie a conta e o estabelecimento (você vira dono). Depois: Cardápio → Mesas e QR → Aparência.
 
 ## Rotas
 - `/c/[slug]?t=TOKEN` cardápio do cliente (o token vem no QR da mesa)
-- `/painel` pedidos e chamados · `/painel/caixa` · `/painel/cardapio` · `/painel/mesas` · `/painel/aparencia`
+- `/painel` pedidos e chamados · `/painel/caixa` · `/painel/cardapio` · `/painel/mesas` · `/painel/aparencia` · `/painel/perfil`
 
 ## Observações
 - Em Supabase > Authentication, desative "Confirm email" para testar rápido.
