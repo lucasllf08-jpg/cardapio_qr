@@ -11,7 +11,7 @@ Cardápio digital por QR Code com pedidos por mesa, comanda paga no caixa e pain
 
 ## Rotas
 - `/c/[slug]?t=TOKEN` cardápio do cliente (o token vem no QR da mesa)
-- `/painel` pedidos e chamados · `/painel/caixa` · `/painel/cardapio` · `/painel/mesas` · `/painel/aparencia` · `/painel/perfil`
+- `/painel` pedidos e chamados · `/painel/caixa` · `/painel/cardapio` · `/painel/mesas` · `/painel/aparencia` · `/painel/perfil` · `/painel/relatorios`
 
 ## Observações
 - Em Supabase > Authentication, desative "Confirm email" para testar rápido.

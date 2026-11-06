@@ -10,6 +10,7 @@ import type { Establishment, Role } from '@/lib/types';
 const ICONS: Record<string, string> = {
   orders: 'M9 3h6a1 1 0 0 1 1 1v1h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2V4a1 1 0 0 1 1-1z M9 12h6 M9 16h4',
   cashier: 'M3 7h18v12H3z M3 7l2-3h14l2 3 M16 13h2',
+  chart: 'M4 20V10 M10 20V4 M16 20v-7 M22 20H2',
   menu: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z M8 7h7',
   tables: 'M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z M14 14h3v3h-3z M19 19h1',
   look: 'M4 7h10 M18 7h2 M4 17h2 M10 17h10 M14 5v4 M6 15v4',
@@ -25,6 +26,7 @@ function Icon({ name }: { name: string }) {
 const NAV: { href: string; label: string; icon: string; roles: Role[] }[] = [
   { href: '/painel', label: 'Pedidos', icon: 'orders', roles: ['owner', 'waiter', 'cashier'] },
   { href: '/painel/caixa', label: 'Caixa', icon: 'cashier', roles: ['owner', 'cashier'] },
+  { href: '/painel/relatorios', label: 'Relatórios', icon: 'chart', roles: ['owner'] },
   { href: '/painel/cardapio', label: 'Cardápio', icon: 'menu', roles: ['owner'] },
   { href: '/painel/mesas', label: 'Mesas e QR', icon: 'tables', roles: ['owner'] },
   { href: '/painel/aparencia', label: 'Aparência', icon: 'look', roles: ['owner'] },

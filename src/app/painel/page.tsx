@@ -13,7 +13,6 @@ const LABEL: Record<string, string> = { new: 'Novo', preparing: 'Em preparo', de
 
 export default function OrdersPage() {
   const { est, role } = usePanel();
-  const [view, setView] = useState<'active' | 'history'>('active');
   const [orders, setOrders] = useState<Order[]>([]);
   const [calls, setCalls] = useState<Call[]>([]);
   const [live, setLive] = useState(false);
@@ -22,20 +21,16 @@ export default function OrdersPage() {
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t); }, []);
 
   const load = useCallback(async () => {
-    const base = supabase.from('orders')
-      .select('id,status,note,created_at,tabs(tables(number)),order_items(id,name,quantity,note,addons)')
-      .eq('establishment_id', est.id);
-    const q = view === 'active'
-      ? base.in('status', ['new', 'preparing']).order('created_at', { ascending: true })
-      : base.in('status', ['delivered', 'cancelled']).order('created_at', { ascending: false }).limit(100);
     const [o, c] = await Promise.all([
-      q,
+      supabase.from('orders')
+        .select('id,status,note,created_at,tabs(tables(number)),order_items(id,name,quantity,note,addons)')
+        .eq('establishment_id', est.id).in('status', ['new', 'preparing']).order('created_at', { ascending: true }),
       supabase.from('service_calls').select('id,type,created_at,tables(number)')
         .eq('establishment_id', est.id).eq('status', 'pending').order('created_at'),
     ]);
     setOrders((o.data ?? []) as unknown as Order[]);
     setCalls((c.data ?? []) as unknown as Call[]);
-  }, [est.id, view]);
+  }, [est.id]);
 
   useEffect(() => {
     load();
@@ -49,8 +44,8 @@ export default function OrdersPage() {
   }, [est.id, load]);
 
   async function setStatus(id: string, status: string) {
+    if (status === 'cancelled' && role === 'waiter') return alert('Apenas caixa ou dono podem cancelar.');
     if (status === 'cancelled' && !confirm('Cancelar este pedido?')) return;
-    if (role === 'waiter' && status === 'cancelled') return alert('Apenas caixa ou dono podem cancelar.');
     const { error } = await supabase.from('orders').update({ status }).eq('id', id);
     if (error) alert(error.message);
     load();
@@ -65,12 +60,10 @@ export default function OrdersPage() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2">
-        <button className={view === 'active' ? 'btn-dark' : 'btn-light'} onClick={() => setView('active')}>Em andamento</button>
-        <button className={view === 'history' ? 'btn-dark' : 'btn-light'} onClick={() => setView('history')}>Histórico</button>
-        <span className={`ml-auto flex items-center gap-2 text-sm ${live ? 'text-emerald-600' : 'text-red-600'}`}>
+        <span className={`flex items-center gap-2 text-sm font-semibold ${live ? 'text-emerald-600' : 'text-red-600'}`}>
           <span className="h-2 w-2 rounded-full bg-current" />{live ? 'Ao vivo' : 'Reconectando…'}
         </span>
-        {!soundOn && <button className="btn-amber" onClick={() => { enableSound(); setSoundOn(true); }}>Ativar som dos alertas</button>}
+        {!soundOn && <button className="btn-amber ml-auto" onClick={() => { enableSound(); setSoundOn(true); }}>Ativar som dos alertas</button>}
       </div>
 
       {calls.length > 0 && (
@@ -87,33 +80,29 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {view === 'active' ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {(['new', 'preparing'] as const).map((st) => (
-            <section key={st} className="space-y-3">
-              <h3 className="text-xl">{LABEL[st]} <span className="text-muted">({col(st).length})</span></h3>
-              {col(st).map((o) => <OrderCard key={o.id} o={o} now={now} onStatus={setStatus} />)}
-              {col(st).length === 0 && <p className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-muted">{st === 'new' ? 'Nenhum pedido novo. Os próximos aparecem aqui com um aviso sonoro.' : 'Nada em preparo agora.'}</p>}
-            </section>
-          ))}
-        </div>
-      ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
-          {orders.map((o) => <OrderCard key={o.id} o={o} now={now} onStatus={setStatus} />)}
-          {orders.length === 0 && <p className="text-sm text-muted">Sem histórico ainda.</p>}
-        </div>
-      )}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {(['new', 'preparing'] as const).map((st) => (
+          <section key={st} className="space-y-3">
+            <h3 className="text-xl">{LABEL[st]} <span className="text-muted">({col(st).length})</span></h3>
+            {col(st).map((o) => <OrderCard key={o.id} o={o} now={now} onStatus={setStatus} />)}
+            {col(st).length === 0 && (
+              <p className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-muted">
+                {st === 'new' ? 'Nenhum pedido novo. Os próximos aparecem aqui com um aviso sonoro.' : 'Nada em preparo agora.'}
+              </p>
+            )}
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
 
 function OrderCard({ o, now, onStatus }: { o: Order; now: number; onStatus: (id: string, s: string) => void }) {
   const mins = Math.max(0, Math.floor((now - Date.parse(o.created_at)) / 60000));
-  const active = o.status === 'new' || o.status === 'preparing';
   const late = o.status === 'new' && mins >= 10;
   const num = String(o.tabs?.tables?.number ?? '?').padStart(2, '0');
   return (
-    <article className={`card p-0 ${o.status === 'new' ? '!border-accent' : ''} ${o.status === 'cancelled' ? 'opacity-60' : ''}`}>
+    <article className={`card p-0 ${o.status === 'new' ? '!border-accent' : ''}`}>
       <header className="flex items-end justify-between gap-3 p-4 pb-3">
         <div>
           <p className="text-sm text-muted">Mesa</p>
@@ -122,7 +111,7 @@ function OrderCard({ o, now, onStatus }: { o: Order; now: number; onStatus: (id:
         <div className="text-right text-sm">
           <p className="font-semibold">{LABEL[o.status]}</p>
           <p className={late ? 'font-semibold text-red-600' : 'text-muted'}>
-            {fmtTime(o.created_at)}{active && ` · ${mins < 1 ? 'agora' : `há ${mins} min`}`}
+            {fmtTime(o.created_at)} · {mins < 1 ? 'agora' : `há ${mins} min`}
           </p>
         </div>
       </header>
@@ -137,13 +126,11 @@ function OrderCard({ o, now, onStatus }: { o: Order; now: number; onStatus: (id:
         ))}
       </ul>
       {o.note && <p className="mx-4 mb-4 rounded-lg bg-amber-50 p-3 text-sm">Observação: {o.note}</p>}
-      {active && (
-        <footer className="flex gap-2 p-4 pt-0">
-          {o.status === 'new' && <button className="btn-amber flex-1" onClick={() => onStatus(o.id, 'preparing')}>Iniciar preparo</button>}
-          {o.status === 'preparing' && <button className="btn-green flex-1" onClick={() => onStatus(o.id, 'delivered')}>Marcar como entregue</button>}
-          <button className="btn-light" onClick={() => onStatus(o.id, 'cancelled')}>Cancelar</button>
-        </footer>
-      )}
+      <footer className="flex gap-2 p-4 pt-0">
+        {o.status === 'new' && <button className="btn-amber flex-1" onClick={() => onStatus(o.id, 'preparing')}>Iniciar preparo</button>}
+        {o.status === 'preparing' && <button className="btn-green flex-1" onClick={() => onStatus(o.id, 'delivered')}>Marcar como entregue</button>}
+        <button className="btn-light" onClick={() => onStatus(o.id, 'cancelled')}>Cancelar</button>
+      </footer>
     </article>
   );
 }

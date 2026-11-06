@@ -21,3 +21,7 @@ export const slugify = (s: string) =>
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
 export const parsePrice = (s: string) => parseFloat(s.replace(',', '.'));
+
+export const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR');
+export const dayLabel = (day: string, short = false) =>
+  new Date(day + 'T12:00:00').toLocaleDateString('pt-BR', short ? { day: '2-digit' } : { weekday: 'short', day: '2-digit' }).replace('.', '');
