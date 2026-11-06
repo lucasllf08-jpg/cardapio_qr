@@ -20,3 +20,31 @@ body { background: #f9fafb; color: #111827; -webkit-tap-highlight-color: transpa
   .no-print { display: none !important; }
   body { background: #fff; }
 }
+
+/* ===== Tema escuro do painel (escopo: .dark-ui) ===== */
+@layer base {
+  .dark-ui * { border-color: #3a2d31; }
+}
+.dark-ui {
+  color-scheme: dark; min-height: 100vh; background: #140f10; color: #efe7dc;
+  font-family: var(--font-dmsans), system-ui, sans-serif;
+}
+.dark-ui h1, .dark-ui h2, .dark-ui h3 {
+  font-family: var(--font-fraunces), Georgia, serif; font-weight: 600; letter-spacing: -0.01em;
+}
+.dark-ui :focus-visible { outline: 2px solid #c9a15c; outline-offset: 2px; }
+.dark-ui .btn-dark, .dark-ui .btn-amber { background: #c9a15c; color: #140f10; }
+.dark-ui .btn-light { background: #251b1e; color: #efe7dc; border: 1px solid #3a2d31; }
+.dark-ui .btn-red { background: #7a2e3a; color: #efe7dc; }
+.dark-ui .btn-green { background: #86a98d; color: #140f10; }
+.dark-ui .input { background: #251b1e; border-color: #3a2d31; color: #efe7dc; }
+.dark-ui .input::placeholder { color: #7d706d; }
+.dark-ui .input:focus { outline: 2px solid #c9a15c; outline-offset: 1px; }
+.dark-ui .card { background: #1b1416; border-color: #3a2d31; box-shadow: none; }
+.dark-ui .label { color: #a09390; }
+.dark-ui a { color: inherit; }
+
+@media print {
+  .dark-ui, .dark-ui .card { background: #fff !important; color: #000 !important; border-color: #ccc !important; }
+  .dark-ui .text-muted { color: #555 !important; }
+}

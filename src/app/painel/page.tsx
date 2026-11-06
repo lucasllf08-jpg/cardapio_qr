@@ -18,6 +18,8 @@ export default function OrdersPage() {
   const [calls, setCalls] = useState<Call[]>([]);
   const [live, setLive] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t); }, []);
 
   const load = useCallback(async () => {
     const base = supabase.from('orders')
@@ -61,69 +63,87 @@ export default function OrdersPage() {
   const col = (status: string) => orders.filter((o) => o.status === status);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2">
-        <button className={view === 'active' ? 'btn-dark' : 'btn-light'} onClick={() => setView('active')}>Ativos</button>
+        <button className={view === 'active' ? 'btn-dark' : 'btn-light'} onClick={() => setView('active')}>Em andamento</button>
         <button className={view === 'history' ? 'btn-dark' : 'btn-light'} onClick={() => setView('history')}>Histórico</button>
-        <span className={`ml-auto text-sm ${live ? 'text-emerald-600' : 'text-red-600'}`}>● {live ? 'Ao vivo' : 'Reconectando…'}</span>
-        {!soundOn && <button className="btn-amber" onClick={() => { enableSound(); setSoundOn(true); }}>🔔 Ativar som</button>}
+        <span className={`ml-auto flex items-center gap-2 text-sm ${live ? 'text-sage' : 'text-red-300'}`}>
+          <span className="h-2 w-2 rounded-full bg-current" />{live ? 'Ao vivo' : 'Reconectando…'}
+        </span>
+        {!soundOn && <button className="btn-amber" onClick={() => { enableSound(); setSoundOn(true); }}>Ativar som dos alertas</button>}
       </div>
 
       {calls.length > 0 && (
         <div className="space-y-2">
           {calls.map((c) => (
-            <div key={c.id} className={`flex items-center justify-between rounded-2xl p-4 text-white ${c.type === 'bill' ? 'bg-purple-600' : 'bg-red-600'}`}>
-              <p className="text-lg font-bold">Mesa {c.tables.number} {c.type === 'bill' ? 'pediu a conta' : 'está chamando'} · {fmtTime(c.created_at)}</p>
-              <button className="btn bg-white/25 text-white" onClick={() => doneCall(c.id)}>Atendido</button>
+            <div key={c.id} className={`flex items-center justify-between gap-3 rounded-2xl p-4 ${c.type === 'bill' ? 'border border-brass bg-raised' : 'bg-wine'}`}>
+              <p className="text-lg font-semibold">
+                Mesa {c.tables.number} {c.type === 'bill' ? 'pediu a conta' : 'está chamando'}
+                <span className="ml-2 text-sm font-normal text-muted">{fmtTime(c.created_at)}</span>
+              </p>
+              <button className="btn-light" onClick={() => doneCall(c.id)}>Atendido</button>
             </div>
           ))}
         </div>
       )}
 
       {view === 'active' ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2">
           {(['new', 'preparing'] as const).map((st) => (
-            <div key={st} className="space-y-3">
-              <h2 className="text-lg font-bold">{LABEL[st]} ({col(st).length})</h2>
-              {col(st).map((o) => <OrderCard key={o.id} o={o} onStatus={setStatus} />)}
-              {col(st).length === 0 && <p className="text-sm text-gray-400">Nenhum pedido.</p>}
-            </div>
+            <section key={st} className="space-y-3">
+              <h3 className="text-xl">{LABEL[st]} <span className="text-muted">({col(st).length})</span></h3>
+              {col(st).map((o) => <OrderCard key={o.id} o={o} now={now} onStatus={setStatus} />)}
+              {col(st).length === 0 && <p className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-muted">{st === 'new' ? 'Nenhum pedido novo. Os próximos aparecem aqui com um aviso sonoro.' : 'Nada em preparo agora.'}</p>}
+            </section>
           ))}
         </div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2">
-          {orders.map((o) => <OrderCard key={o.id} o={o} onStatus={setStatus} />)}
-          {orders.length === 0 && <p className="text-sm text-gray-400">Sem histórico ainda.</p>}
+        <div className="grid gap-3 lg:grid-cols-2">
+          {orders.map((o) => <OrderCard key={o.id} o={o} now={now} onStatus={setStatus} />)}
+          {orders.length === 0 && <p className="text-sm text-muted">Sem histórico ainda.</p>}
         </div>
       )}
     </div>
   );
 }
 
-function OrderCard({ o, onStatus }: { o: Order; onStatus: (id: string, s: string) => void }) {
+function OrderCard({ o, now, onStatus }: { o: Order; now: number; onStatus: (id: string, s: string) => void }) {
+  const mins = Math.max(0, Math.floor((now - Date.parse(o.created_at)) / 60000));
+  const active = o.status === 'new' || o.status === 'preparing';
+  const late = o.status === 'new' && mins >= 10;
+  const num = String(o.tabs?.tables?.number ?? '?').padStart(2, '0');
   return (
-    <div className={`card ${o.status === 'new' ? 'border-2 border-amber-400' : ''}`}>
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-xl font-bold">Mesa {o.tabs?.tables?.number}</p>
-        <p className="text-sm text-gray-500">{fmtTime(o.created_at)} · {LABEL[o.status]}</p>
-      </div>
-      <ul className="space-y-1">
+    <article className={`card p-0 ${o.status === 'new' ? '!border-brass' : ''} ${o.status === 'cancelled' ? 'opacity-60' : ''}`}>
+      <header className="flex items-end justify-between gap-3 p-4 pb-3">
+        <div>
+          <p className="text-sm text-muted">Mesa</p>
+          <p className="font-display text-5xl font-semibold leading-none">{num}</p>
+        </div>
+        <div className="text-right text-sm">
+          <p className="font-semibold">{LABEL[o.status]}</p>
+          <p className={late ? 'font-semibold text-red-300' : 'text-muted'}>
+            {fmtTime(o.created_at)}{active && ` · ${mins < 1 ? 'agora' : `há ${mins} min`}`}
+          </p>
+        </div>
+      </header>
+      <div className="mx-4 border-t border-dashed" />
+      <ul className="space-y-2 p-4">
         {o.order_items.map((i) => (
-          <li key={i.id}>
-            <span className="font-semibold">{i.quantity}x</span> {i.name}
-            {i.addons?.length > 0 && <span className="text-sm text-gray-500"> (+ {i.addons.map((a) => a.name).join(', ')})</span>}
-            {i.note && <p className="text-sm italic text-gray-500">“{i.note}”</p>}
+          <li key={i.id} className="text-lg leading-snug">
+            <span className="mr-2 font-semibold text-brass">{i.quantity}x</span>{i.name}
+            {i.addons?.length > 0 && <span className="block pl-8 text-sm text-muted">+ {i.addons.map((a) => a.name).join(', ')}</span>}
+            {i.note && <span className="block pl-8 text-sm italic text-muted">“{i.note}”</span>}
           </li>
         ))}
       </ul>
-      {o.note && <p className="mt-2 rounded-lg bg-yellow-50 p-2 text-sm">Obs: {o.note}</p>}
-      {(o.status === 'new' || o.status === 'preparing') && (
-        <div className="mt-3 flex gap-2">
+      {o.note && <p className="mx-4 mb-4 rounded-lg bg-brass/10 p-3 text-sm">Observação: {o.note}</p>}
+      {active && (
+        <footer className="flex gap-2 p-4 pt-0">
           {o.status === 'new' && <button className="btn-amber flex-1" onClick={() => onStatus(o.id, 'preparing')}>Iniciar preparo</button>}
-          {o.status === 'preparing' && <button className="btn-green flex-1" onClick={() => onStatus(o.id, 'delivered')}>Entregue</button>}
+          {o.status === 'preparing' && <button className="btn-green flex-1" onClick={() => onStatus(o.id, 'delivered')}>Marcar como entregue</button>}
           <button className="btn-light" onClick={() => onStatus(o.id, 'cancelled')}>Cancelar</button>
-        </div>
+        </footer>
       )}
-    </div>
+    </article>
   );
 }

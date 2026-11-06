@@ -54,18 +54,18 @@ export default function TablesPage() {
         <button className="btn-dark" onClick={create}>Adicionar mesas</button>
         <button className="btn-light ml-auto" onClick={() => window.print()}>🖨 Imprimir QR Codes</button>
       </div>
-      {tables.length === 0 && <p className="text-gray-400">Nenhuma mesa cadastrada.</p>}
+      {tables.length === 0 && <p className="text-muted">Nenhuma mesa cadastrada.</p>}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {tables.map((t) => (
           <div key={t.id} className={`card text-center ${t.active ? '' : 'opacity-50'}`}>
-            <p className="text-sm text-gray-500">{est.name}</p>
-            <p className="text-xl font-bold">Mesa {t.number}</p>
-            {qrs[t.id] && <img src={qrs[t.id]} alt={`QR Mesa ${t.number}`} className="mx-auto my-2 w-full max-w-[200px]" />}
-            <p className="text-xs text-gray-500">Escaneie para ver o cardápio e pedir</p>
+            <p className="text-sm text-muted">{est.name}</p>
+            <p className="font-display text-2xl font-semibold">Mesa {t.number}</p>
+            {qrs[t.id] && <img src={qrs[t.id]} alt={`QR Mesa ${t.number}`} className="mx-auto my-3 w-full max-w-[200px] rounded-xl bg-white p-2" />}
+            <p className="text-xs text-muted">Escaneie para ver o cardápio e pedir</p>
             <div className="no-print mt-2 flex flex-wrap justify-center gap-1 text-sm">
               <button className="btn-light px-2 py-1" onClick={() => toggle(t)}>{t.active ? 'Desativar' : 'Ativar'}</button>
               <button className="btn-light px-2 py-1" onClick={() => renew(t)}>Novo QR</button>
-              <button className="btn-light px-2 py-1 text-red-600" onClick={() => remove(t)}>×</button>
+              <button className="btn-light px-2 py-1 text-red-300" onClick={() => remove(t)}>×</button>
             </div>
           </div>
         ))}

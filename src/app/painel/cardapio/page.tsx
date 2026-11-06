@@ -111,7 +111,7 @@ export default function MenuAdmin() {
       </form>
 
       {cats.length === 0 && (
-        <div className="card text-gray-600">
+        <div className="card text-muted">
           <p className="font-semibold">Primeiros passos</p>
           <p>1. Crie uma categoria acima. 2. Cadastre produtos. 3. Em “Mesas e QR”, gere os QR Codes. 4. Em “Aparência”, personalize logo e cores.</p>
         </div>
@@ -120,22 +120,22 @@ export default function MenuAdmin() {
       {cats.map((c, i) => (
         <section key={c.id} className="card space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="mr-auto text-lg font-bold">{c.name}</h2>
+            <h3 className="mr-auto text-2xl">{c.name}</h3>
             <button className="btn-light px-3 py-2" onClick={() => move(i, -1)}>↑</button>
             <button className="btn-light px-3 py-2" onClick={() => move(i, 1)}>↓</button>
             <button className="btn-light px-3 py-2" onClick={() => renameCat(c)}>Renomear</button>
-            <button className="btn-light px-3 py-2 text-red-600" onClick={() => delCat(c)}>Excluir</button>
+            <button className="btn-light px-3 py-2 text-red-300" onClick={() => delCat(c)}>Excluir</button>
           </div>
           {prods.filter((p) => p.category_id === c.id).map((p) => (
             <div key={p.id} className="flex items-center gap-3 border-t pt-3">
-              {p.photo_url ? <img src={p.photo_url} alt="" className="h-14 w-14 rounded-lg object-cover" /> : <div className="h-14 w-14 rounded-lg bg-gray-100" />}
+              {p.photo_url ? <img src={p.photo_url} alt="" className="h-14 w-14 rounded-lg object-cover" /> : <div className="h-14 w-14 rounded-lg bg-raised" />}
               <div className="min-w-0 flex-1">
-                <p className={`truncate font-semibold ${p.available ? '' : 'text-gray-400 line-through'}`}>{p.name}</p>
-                <p className="text-sm text-gray-500">{brl(p.price)}</p>
+                <p className={`truncate font-semibold ${p.available ? '' : 'text-muted line-through'}`}>{p.name}</p>
+                <p className="text-sm text-muted">{brl(p.price)}</p>
               </div>
               <button className={p.available ? 'btn-green px-3 py-2' : 'btn-light px-3 py-2'} onClick={() => toggle(p)}>{p.available ? 'Disponível' : 'Esgotado'}</button>
               <button className="btn-light px-3 py-2" onClick={() => editDraft(p)}>Editar</button>
-              <button className="btn-light px-3 py-2 text-red-600" onClick={() => delProd(p)}>×</button>
+              <button className="btn-light px-3 py-2 text-red-300" onClick={() => delProd(p)}>×</button>
             </div>
           ))}
           <button className="btn-light w-full" onClick={() => newDraft(c.id)}>+ Produto em {c.name}</button>
@@ -144,7 +144,7 @@ export default function MenuAdmin() {
 
       {draft && (
         <div className="fixed inset-0 z-40 flex items-end bg-black/50 md:items-center md:justify-center">
-          <form onSubmit={save} className="max-h-[92vh] w-full space-y-3 overflow-y-auto rounded-t-3xl bg-white p-5 md:max-w-lg md:rounded-3xl">
+          <form onSubmit={save} className="max-h-[92vh] w-full space-y-3 overflow-y-auto rounded-t-3xl bg-surface p-5 md:max-w-lg md:rounded-3xl">
             <h3 className="text-lg font-bold">{draft.id ? 'Editar produto' : 'Novo produto'}</h3>
             <div><label className="label">Nome</label><input className="input" required value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></div>
             <div><label className="label">Descrição (opcional)</label><textarea className="input" rows={2} value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} /></div>
@@ -159,7 +159,7 @@ export default function MenuAdmin() {
               <label className="label">Foto (opcional)</label>
               {draft.photo_url && <img src={draft.photo_url} alt="" className="mb-2 h-28 rounded-xl object-cover" />}
               <input type="file" accept="image/*" onChange={(e) => photo(e.target.files?.[0])} />
-              {draft.photo_url && <button type="button" className="ml-3 text-sm text-red-600" onClick={() => setDraft({ ...draft, photo_url: null })}>Remover foto</button>}
+              {draft.photo_url && <button type="button" className="ml-3 text-sm text-red-300" onClick={() => setDraft({ ...draft, photo_url: null })}>Remover foto</button>}
             </div>
             <div>
               <label className="label">Adicionais (opcional)</label>
@@ -167,7 +167,7 @@ export default function MenuAdmin() {
                 <div key={i} className="mb-2 flex gap-2">
                   <input className="input" placeholder="Nome (ex.: Bacon extra)" value={a.name} onChange={(e) => setDraft({ ...draft, addons: draft.addons.map((x, k) => k === i ? { ...x, name: e.target.value } : x) })} />
                   <input className="input w-28" placeholder="R$" inputMode="decimal" value={a.price} onChange={(e) => setDraft({ ...draft, addons: draft.addons.map((x, k) => k === i ? { ...x, price: e.target.value } : x) })} />
-                  <button type="button" className="px-2 text-red-600" onClick={() => setDraft({ ...draft, addons: draft.addons.filter((_, k) => k !== i) })}>×</button>
+                  <button type="button" className="px-2 text-red-300" onClick={() => setDraft({ ...draft, addons: draft.addons.filter((_, k) => k !== i) })}>×</button>
                 </div>
               ))}
               <button type="button" className="text-sm underline" onClick={() => setDraft({ ...draft, addons: [...draft.addons, { name: '', price: '' }] })}>+ adicional</button>

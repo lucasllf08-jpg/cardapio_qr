@@ -44,14 +44,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-4 p-6">
-      <h1 className="text-center text-2xl font-bold">{step === 'auth' ? (mode === 'login' ? 'Entrar' : 'Criar conta') : 'Seu estabelecimento'}</h1>
+    <div className="dark-ui flex items-center justify-center">
+    <main className="w-full max-w-sm space-y-4 p-6">
+      <h1 className="text-center text-3xl">{step === 'auth' ? (mode === 'login' ? 'Entrar' : 'Criar conta') : 'Seu estabelecimento'}</h1>
       {step === 'auth' ? (
         <form onSubmit={submitAuth} className="space-y-3">
           <input className="input" type="email" required placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} />
           <input className="input" type="password" required minLength={6} placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} />
           <button disabled={busy} className="btn-dark w-full">{busy ? 'Aguarde…' : mode === 'login' ? 'Entrar' : 'Criar conta'}</button>
-          <button type="button" className="w-full text-sm text-gray-600 underline" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
+          <button type="button" className="w-full text-sm text-muted underline" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
             {mode === 'login' ? 'Ainda não tenho conta' : 'Já tenho conta'}
           </button>
         </form>
@@ -64,12 +65,13 @@ export default function LoginPage() {
           <div>
             <label className="label">Endereço do cardápio</label>
             <input className="input" required value={slug} onChange={(e) => setSlug(slugify(e.target.value))} />
-            <p className="mt-1 text-xs text-gray-500">Ficará em /c/{slug || 'seu-endereco'}</p>
+            <p className="mt-1 text-xs text-muted">Ficará em /c/{slug || 'seu-endereco'}</p>
           </div>
           <button disabled={busy} className="btn-dark w-full">{busy ? 'Criando…' : 'Criar e continuar'}</button>
         </form>
       )}
-      {msg && <p className="text-center text-sm text-red-600">{msg}</p>}
+      {msg && <p className="text-center text-sm text-red-300">{msg}</p>}
     </main>
+    </div>
   );
 }
