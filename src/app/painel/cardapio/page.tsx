@@ -126,19 +126,19 @@ export default function MenuAdmin() {
             <button className="btn-light px-3 py-2" onClick={() => renameCat(c)}>Renomear</button>
             <button className="btn-light px-3 py-2 text-red-600" onClick={() => delCat(c)}>Excluir</button>
           </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(10.5rem,1fr))] gap-3">
             {prods.filter((p) => p.category_id === c.id).map((p) => (
-              <div key={p.id} className="overflow-hidden rounded-2xl border border-line bg-surface">
+              <div key={p.id} className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface">
                 {p.photo_url
                   ? <img src={p.photo_url} alt="" className="aspect-[4/3] w-full object-cover" />
                   : <div className="flex aspect-[4/3] w-full items-center justify-center bg-raised text-sm text-muted">Sem foto</div>}
                 <div className="space-y-2 p-3">
                   <p className={`truncate font-bold ${p.available ? '' : 'text-muted line-through'}`}>{p.name}</p>
                   <p className="font-bold text-accent">{brl(p.price)}</p>
-                  <div className="flex gap-2">
-                    <button className={`${p.available ? 'btn-green' : 'btn-light'} flex-1 px-2 py-2 text-sm`} onClick={() => toggle(p)}>{p.available ? 'Disponível' : 'Esgotado'}</button>
+                  <button className={`${p.available ? 'btn-green' : 'btn-light'} w-full px-2 py-2 text-sm`} onClick={() => toggle(p)}>{p.available ? 'Disponível' : 'Esgotado'}</button>
+                  <div className="grid grid-cols-[1fr_auto] gap-2">
                     <button className="btn-light px-3 py-2 text-sm" onClick={() => editDraft(p)}>Editar</button>
-                    <button className="btn-light px-3 py-2 text-sm text-red-600" onClick={() => delProd(p)} aria-label="Excluir">×</button>
+                    <button className="btn-light px-4 py-2 text-sm text-red-600" onClick={() => delProd(p)} aria-label="Excluir">×</button>
                   </div>
                 </div>
               </div>

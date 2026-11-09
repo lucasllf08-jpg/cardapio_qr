@@ -41,7 +41,7 @@ body { background: #f9fafb; color: #111827; -webkit-tap-highlight-color: transpa
 .pos-ui .input:focus { outline: 2px solid #f0280f; outline-offset: 1px; border-color: transparent; }
 .pos-ui .card { background: #fff; border-color: #e4e6ea; box-shadow: 0 1px 2px rgba(16,16,16,.04); }
 .pos-ui .label { color: #6b7280; font-weight: 600; }
-.pos-ui a { color: inherit; }
+.pos-ui :where(a) { color: inherit; }
 
 @media print {
   .pos-ui, .pos-ui .card { background: #fff !important; color: #000 !important; }

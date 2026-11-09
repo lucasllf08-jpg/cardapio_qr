@@ -12,7 +12,7 @@ export function onColor(hex: string) {
 }
 
 export const FONTS: Record<string, string> = {
-  inter: 'Inter', poppins: 'Poppins', merriweather: 'Merriweather', nunito: 'Nunito',
+  urbanist: 'Urbanist', inter: 'Inter', poppins: 'Poppins', merriweather: 'Merriweather', nunito: 'Nunito',
 };
 export const fontStack = (f: string) => `var(--font-${f}), system-ui, sans-serif`;
 

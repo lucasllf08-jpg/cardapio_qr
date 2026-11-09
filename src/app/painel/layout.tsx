@@ -1,10 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Ctx, type Profile } from '@/lib/panel';
 import { Avatar } from '@/lib/avatar';
+import { armOnGesture, beep, enableSound, readSoundPref, saveSoundPref } from '@/lib/sound';
 import type { Establishment, Role } from '@/lib/types';
 
 const ICONS: Record<string, string> = {
@@ -37,6 +38,31 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const path = usePathname();
   const [s, setS] = useState<{ est: Establishment; role: Role; userId: string; email: string; profile: Profile } | null>(null);
+  const [sound, setSoundState] = useState(false);
+  const soundRef = useRef(false);
+
+  // O som fica guardado: continua como você deixou ao trocar de aba ou recarregar
+  useEffect(() => {
+    const on = readSoundPref();
+    setSoundState(on); soundRef.current = on;
+    if (on) armOnGesture();
+  }, []);
+  const setSound = (on: boolean) => {
+    setSoundState(on); soundRef.current = on; saveSoundPref(on);
+    if (on) enableSound();
+  };
+
+  // Alerta sonoro de novo pedido/chamado em qualquer tela do painel
+  const estId = s?.est.id;
+  useEffect(() => {
+    if (!estId) return;
+    const filter = `establishment_id=eq.${estId}`;
+    const ch = supabase.channel('alerts-' + estId)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders', filter }, () => { if (soundRef.current) beep(); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'service_calls', filter }, () => { if (soundRef.current) beep(); })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [estId]);
 
   useEffect(() => {
     (async () => {
@@ -60,7 +86,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   const signOut = async () => { await supabase.auth.signOut(); router.replace('/login'); };
 
   return (
-    <Ctx.Provider value={{ ...s, setEst: (est) => setS((p) => p && { ...p, est }), setProfile: (profile) => setS((p) => p && { ...p, profile }) }}>
+    <Ctx.Provider value={{ ...s, sound, setSound, setEst: (est) => setS((p) => p && { ...p, est }), setProfile: (profile) => setS((p) => p && { ...p, profile }) }}>
       <div className="pos-ui md:flex">
         <aside className="no-print sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-side p-4 text-neutral-300 md:flex lg:w-64">
           <div className="mb-6 flex items-center gap-3 px-2 pt-2">
@@ -111,13 +137,14 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
           </main>
         </div>
 
-        <nav className="no-print fixed inset-x-0 bottom-0 z-30 flex bg-side md:hidden">
+        <nav className="no-print fixed inset-x-0 bottom-0 z-30 flex bg-side pb-[env(safe-area-inset-bottom)] md:hidden">
           {items.map((n) => {
             const active = n.href === current.href;
             return (
               <Link key={n.href} href={n.href} aria-current={active ? 'page' : undefined}
-                className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-semibold ${active ? 'text-accent' : 'text-neutral-400'}`}>
-                <Icon name={n.icon} />{n.label}
+                className="flex flex-1 flex-col items-center gap-1 px-1 py-2 text-[11px] font-semibold text-white">
+                <span className={`flex h-7 w-12 items-center justify-center rounded-full ${active ? 'bg-accent' : ''}`}><Icon name={n.icon} /></span>
+                <span className={active ? 'font-extrabold' : ''}>{n.label}</span>
               </Link>
             );
           })}

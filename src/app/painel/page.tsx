@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { usePanel } from '@/lib/panel';
-import { beep, enableSound } from '@/lib/sound';
+import { Switch } from '@/lib/switch';
 import { fmtTime } from '@/lib/utils';
 
 type Item = { id: string; name: string; quantity: number; note: string | null; addons: { name: string }[] };
@@ -12,11 +12,10 @@ type Call = { id: string; type: 'waiter' | 'bill'; created_at: string; tables: {
 const LABEL: Record<string, string> = { new: 'Novo', preparing: 'Em preparo', delivered: 'Entregue', cancelled: 'Cancelado' };
 
 export default function OrdersPage() {
-  const { est, role } = usePanel();
+  const { est, role, sound, setSound } = usePanel();
   const [orders, setOrders] = useState<Order[]>([]);
   const [calls, setCalls] = useState<Call[]>([]);
   const [live, setLive] = useState(false);
-  const [soundOn, setSoundOn] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t); }, []);
 
@@ -36,8 +35,8 @@ export default function OrdersPage() {
     load();
     const filter = `establishment_id=eq.${est.id}`;
     const ch = supabase.channel('panel-' + est.id)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter }, (p) => { if (p.eventType === 'INSERT') beep(); load(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'service_calls', filter }, (p) => { if (p.eventType === 'INSERT') beep(); load(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter }, () => load())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'service_calls', filter }, () => load())
       .subscribe((s) => setLive(s === 'SUBSCRIBED'));
     const t = setInterval(load, 20000);
     return () => { supabase.removeChannel(ch); clearInterval(t); };
@@ -63,7 +62,7 @@ export default function OrdersPage() {
         <span className={`flex items-center gap-2 text-sm font-semibold ${live ? 'text-emerald-600' : 'text-red-600'}`}>
           <span className="h-2 w-2 rounded-full bg-current" />{live ? 'Ao vivo' : 'Reconectando…'}
         </span>
-        {!soundOn && <button className="btn-amber ml-auto" onClick={() => { enableSound(); setSoundOn(true); }}>Ativar som dos alertas</button>}
+        <div className="ml-auto"><Switch checked={sound} onChange={setSound} label="Som dos alertas" /></div>
       </div>
 
       {calls.length > 0 && (

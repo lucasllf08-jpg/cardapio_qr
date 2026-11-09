@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: 'Cardápio digital com pedido por QR Code',
   manifest: '/manifest.webmanifest',
 };
-export const viewport: Viewport = { themeColor: '#101010', width: 'device-width', initialScale: 1 };
+export const viewport: Viewport = { themeColor: '#101010', viewportFit: 'cover', width: 'device-width', initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

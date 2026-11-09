@@ -8,6 +8,8 @@ export type PanelCtx = {
   profile: Profile;
   setEst: (e: Establishment) => void;
   setProfile: (p: Profile) => void;
+  sound: boolean;
+  setSound: (on: boolean) => void;
 };
 export const Ctx = createContext<PanelCtx | null>(null);
 export const usePanel = () => {

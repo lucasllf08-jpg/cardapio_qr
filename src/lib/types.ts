@@ -2,7 +2,7 @@ export type Establishment = {
   id: string; name: string; slug: string;
   logo_url: string | null; cover_url: string | null;
   primary_color: string; secondary_color: string;
-  font: 'inter' | 'poppins' | 'merriweather' | 'nunito';
+  font: 'urbanist' | 'inter' | 'poppins' | 'merriweather' | 'nunito';
   card_style: 'list' | 'grid';
   description: string | null; opening_hours: string | null; address: string | null;
   instagram: string | null; whatsapp: string | null; active: boolean;
