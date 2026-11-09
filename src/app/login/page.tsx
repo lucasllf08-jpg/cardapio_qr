@@ -17,6 +17,8 @@ const TEXT: Record<Mode, { title: string; sub: string }> = {
 function friendly(m: string) {
   if (/invalid login/i.test(m)) return 'E-mail ou senha incorretos.';
   if (/already registered/i.test(m)) return 'Este e-mail já tem conta. Entre ou recupere a senha.';
+  if (/only request this once|security purposes/i.test(m)) return 'Por segurança, aguarde 1 minuto antes de pedir outro link.';
+  if (/email address not authorized/i.test(m)) return 'O envio de e-mail do sistema ainda não está liberado para este endereço. Fale com o administrador.';
   if (/rate limit/i.test(m)) return 'Muitas tentativas. Aguarde alguns minutos e tente de novo.';
   if (/duplicate|already in use/i.test(m)) return 'Esse endereço já está em uso. Escolha outro.';
   return m;
@@ -32,6 +34,13 @@ export default function LoginPage() {
   const [slug, setSlug] = useState('');
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [wait, setWait] = useState(0); // segundos até poder pedir outro link de senha
+
+  useEffect(() => {
+    if (wait <= 0) return;
+    const t = setTimeout(() => setWait((w) => w - 1), 1000);
+    return () => clearTimeout(t);
+  }, [wait]);
 
   async function afterAuth() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -47,11 +56,11 @@ export default function LoginPage() {
     e.preventDefault(); setBusy(true); setMsg(null);
 
     if (mode === 'forgot') {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/redefinir-senha` });
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/redefinir-senha` });
       setBusy(false);
-      return setMsg(error
-        ? { text: friendly(error.message), ok: false }
-        : { text: 'Se esse e-mail tiver conta, o link chega em instantes. Confira também o spam.', ok: true });
+      if (error) return setMsg({ text: friendly(error.message), ok: false });
+      setWait(60);
+      return setMsg({ text: 'Se esse e-mail tiver conta, o link chega em instantes. Confira também o spam.', ok: true });
     }
 
     if (mode === 'setup') {
@@ -114,7 +123,9 @@ export default function LoginPage() {
           </>
         )}
 
-        <button disabled={busy} className="btn-dark w-full">{busy ? 'Aguarde…' : cta}</button>
+        <button disabled={busy || (mode === 'forgot' && wait > 0)} className="btn-dark w-full">
+          {busy ? 'Aguarde…' : mode === 'forgot' && wait > 0 ? `Reenviar em ${wait}s` : cta}
+        </button>
 
         <p role="status" aria-live="polite" className={`min-h-5 text-sm font-semibold ${msg ? (msg.ok ? 'text-emerald-600' : 'text-red-600') : ''}`}>{msg?.text}</p>
       </form>
